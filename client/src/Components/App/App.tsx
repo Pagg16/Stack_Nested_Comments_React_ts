@@ -2,7 +2,7 @@ import PostList from "../PostLists.js/PostList";
 import { Route, Routes } from "react-router-dom";
 import styles from "./app.module.css";
 import Post from "../Post/Post";
-import { PostProvider } from "../../context/PostContext";
+import { PostProvider } from "../../context/PostContext/PostContext";
 
 function App() {
   return (
