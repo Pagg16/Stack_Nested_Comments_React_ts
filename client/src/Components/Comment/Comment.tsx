@@ -5,6 +5,9 @@ import styles from "./comment.module.css";
 import { usePost } from "../../context/PostContext/usePost";
 import CommentList from "../../CommentList/CommentList";
 import { useState } from "react";
+import CommentForm from "../CommentForm/CommentForm";
+import { useAsyncFn } from "../../hooks/useAsync";
+import createComment from "../../api/comments";
 
 const formattedDate = new Intl.DateTimeFormat(undefined, {
   dateStyle: "medium",
@@ -13,8 +16,25 @@ const formattedDate = new Intl.DateTimeFormat(undefined, {
 
 export default function Comment({ id, message, user, createdAt }: CommentType) {
   const [areChildrenHidden, setAreChildrenHidden] = useState<boolean>(false);
+  const [isReplyng, setisReplyng] = useState<boolean>(false);
+
+  const { loading, error, execute } = useAsyncFn(createComment);
   const postContext = usePost();
+  const post = postContext?.post;
+  const createLocalComment = postContext?.createLocalComment;
   const childComments = postContext?.getReplies(id);
+
+  function onCommentReply(message: string) {
+    return (
+      execute &&
+      execute({ postId: post?.id, message, parentId: id }).then(
+        (comment: CommentType) => {
+          setisReplyng(false);
+          createLocalComment && createLocalComment(comment);
+        }
+      )
+    );
+  }
 
   return (
     <>
@@ -28,11 +48,26 @@ export default function Comment({ id, message, user, createdAt }: CommentType) {
           <IconBtn Icon={FaHeart} arial-lable="like">
             2
           </IconBtn>
-          <IconBtn Icon={FaReply} arial-lable="Reply" />
+          <IconBtn
+            onClick={() => setisReplyng((prevState) => !prevState)}
+            isActive={isReplyng}
+            Icon={FaReply}
+            arial-lable={isReplyng ? "Cansel Reply" : "Reply"}
+          />
           <IconBtn Icon={FaEdit} arial-lable="Edit" />
           <IconBtn Icon={FaTrash} arial-lable="Delete" color="danger" />
         </div>
       </div>
+      {isReplyng && (
+        <div className="mt-1 ml-3">
+          <CommentForm
+            autoFocus={true}
+            onSubmit={onCommentReply}
+            loading={loading}
+            error={error}
+          />
+        </div>
+      )}
       {childComments && childComments.length > 0 && (
         <div className="nested-comments-stack">
           <button
