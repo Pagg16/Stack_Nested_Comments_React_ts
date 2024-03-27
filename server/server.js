@@ -13,6 +13,7 @@ app.register(cors, {
   origin: process.env.CLIENT_URL,
   credentials: true,
 });
+
 app.addHook("onRequest", (req, res, done) => {
   if (req.cookies.userId !== CURRENT_USER_ID) {
     req.cookies.userId = CURRENT_USER_ID;
@@ -21,11 +22,15 @@ app.addHook("onRequest", (req, res, done) => {
   }
   done();
 });
-const prisma = new PrismaClient();
 
+//04295a66-8bfe-4d32-86ae-05d26561d5a4,ad0bcda6-8057-41c8-92e3-fc0fde4b2a8e
+
+// console.log(CURRENT_USER_ID);
+const prisma = new PrismaClient();
 const CURRENT_USER_ID = (
-  await prisma.user.findFirst({ where: { name: "Dash" } })
+  await prisma.user.findFirst({ where: { name: "Flash" } })
 ).id;
+
 const COMMENT_SELECT_FIELDS = {
   id: true,
   message: true,

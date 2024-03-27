@@ -8,6 +8,8 @@ type PostContext = {
   getReplies: (parentId: string) => Comment[];
   rootComments: Comment[];
   createLocalComment: (commetn: Comment) => void;
+  updateLocalComment: (id: string, message: string) => void;
+  deleteLocalComment: (id: string) => void;
 };
 
 export const PostContext = createContext<PostContext | null>(null);
@@ -56,6 +58,23 @@ export function PostProvider({ children }: { children: ReactNode }) {
     setComments((prevState) => [comment, ...prevState]);
   }
 
+  function updateLocalComment(id: string, message: string) {
+    setComments((prevState) =>
+      prevState.map((comment) => {
+        if (comment.id === id) {
+          comment.message = message;
+        }
+        return comment;
+      })
+    );
+  }
+
+  function deleteLocalComment(id: string) {
+    setComments((prevState) =>
+      prevState.filter((comment) => comment.id !== id)
+    );
+  }
+
   if (!id) return null;
 
   return (
@@ -69,6 +88,8 @@ export function PostProvider({ children }: { children: ReactNode }) {
             getReplies,
             rootComments: commentsByParentId["parentComment"],
             createLocalComment,
+            updateLocalComment,
+            deleteLocalComment,
           }}
         >
           {children}

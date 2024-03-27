@@ -1,5 +1,5 @@
 import CommentList from "../../CommentList/CommentList";
-import createComment from "../../api/comments";
+import { createComment } from "../../api/comments";
 import { Comment } from "../../api/posts";
 import { usePost } from "../../context/PostContext/usePost";
 import { useAsyncFn } from "../../hooks/useAsync";
@@ -45,5 +45,3 @@ export default function Post() {
     )
   );
 }
-
-// https://youtu.be/lyNetvEfvT0?t=5657
