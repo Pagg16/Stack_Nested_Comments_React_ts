@@ -10,6 +10,7 @@ type PostContext = {
   createLocalComment: (commetn: Comment) => void;
   updateLocalComment: (id: string, message: string) => void;
   deleteLocalComment: (id: string) => void;
+  toggleLocalCommentLike: (id: string, addLike: boolean) => void;
 };
 
 export const PostContext = createContext<PostContext | null>(null);
@@ -44,6 +45,8 @@ export function PostProvider({ children }: { children: ReactNode }) {
     return group;
   }, [comments]);
 
+  // console.log(commentsByParentId);
+
   useEffect(() => {
     if (post && post.comments && post.comments.length > 0) {
       setComments(post.comments);
@@ -75,6 +78,23 @@ export function PostProvider({ children }: { children: ReactNode }) {
     );
   }
 
+  function toggleLocalCommentLike(id: string, addLike: boolean) {
+    setComments((prevState) =>
+      prevState.map((comment) => {
+        if (comment.id === id) {
+          if (addLike) {
+            comment.likeCount = comment.likeCount + 1;
+            comment.likedByMe = true;
+          } else {
+            comment.likeCount = comment.likeCount - 1;
+            comment.likedByMe = false;
+          }
+        }
+        return comment;
+      })
+    );
+  }
+
   if (!id) return null;
 
   return (
@@ -90,6 +110,7 @@ export function PostProvider({ children }: { children: ReactNode }) {
             createLocalComment,
             updateLocalComment,
             deleteLocalComment,
+            toggleLocalCommentLike,
           }}
         >
           {children}

@@ -6,6 +6,7 @@ type CommentFormProps<T> = {
   autoFocus?: boolean;
   onSubmit: (data: string) => Promise<T>;
   initialValue?: string;
+  onBlur?: () => void;
 };
 
 export default function CommentForm<T>({
@@ -14,6 +15,7 @@ export default function CommentForm<T>({
   autoFocus = false,
   onSubmit,
   initialValue = "",
+  onBlur,
 }: CommentFormProps<T>) {
   const [message, setMessage] = useState<string>(initialValue);
 
@@ -23,7 +25,13 @@ export default function CommentForm<T>({
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form
+      onBlur={() => {
+        if (initialValue !== message) return;
+        onBlur && onBlur();
+      }}
+      onSubmit={handleSubmit}
+    >
       <div className="comment-form-row">
         <textarea
           autoFocus={autoFocus}

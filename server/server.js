@@ -50,6 +50,7 @@ app.get("/posts", async (req, res) => {
       select: {
         id: true,
         title: true,
+        body: true,
       },
     })
   );

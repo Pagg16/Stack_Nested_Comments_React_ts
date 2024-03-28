@@ -3,6 +3,7 @@ import { makeRequest } from "./makeRequest";
 type PostList = {
   id: string;
   title: string;
+  body: string;
 }[];
 
 export type Post = {
@@ -23,6 +24,8 @@ export type Comment = {
   message: string;
   parentId: string | null;
   user: UserComments;
+  likeCount: number;
+  likedByMe: boolean | undefined;
 };
 
 export function getPosts(): Promise<PostList> {

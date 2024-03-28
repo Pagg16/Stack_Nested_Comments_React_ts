@@ -1,0 +1,26 @@
+.postContainer {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 1rem;
+  font-family: Arial, Helvetica, sans-serif;
+  height: 100%;
+}
+
+.post {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  width: 100%;
+}
+
+.title {
+  font-weight: bold;
+}
+
+.body {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}

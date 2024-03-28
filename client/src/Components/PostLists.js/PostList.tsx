@@ -1,6 +1,7 @@
 import { getPosts } from "../../api/posts";
 import { Link } from "react-router-dom";
 import { useAsync } from "../../hooks/useAsync";
+import styles from "./postList.module.css";
 
 export default function PostList() {
   const { loading, error, value: posts } = useAsync(getPosts);
@@ -8,9 +9,14 @@ export default function PostList() {
   if (loading) return <div>Loading</div>;
   if (error) return <div>Error</div>;
 
-  return posts?.map((post) => (
-    <h1 key={post.id}>
-      <Link to={`/posts/${post.id}`}>{post.title}</Link>
-    </h1>
-  ));
+  return (
+    <div className={styles.postContainer}>
+      {posts?.map((post) => (
+        <Link className={styles.post} key={post.id} to={`/posts/${post.id}`}>
+          <div className={styles.title}>{post.title}</div>
+          <div className={styles.body}>{post.body}</div>
+        </Link>
+      ))}
+    </div>
+  );
 }

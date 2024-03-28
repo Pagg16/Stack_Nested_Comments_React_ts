@@ -10,6 +10,7 @@ import { useAsyncFn } from "../../hooks/useAsync";
 import {
   createComment,
   deleteComment,
+  toggleCommentLike,
   updateComment,
 } from "../../api/comments";
 import { useUser } from "../../hooks/useUser";
@@ -25,8 +26,8 @@ export default function Comment({
   user,
   createdAt,
   likeCount,
-  likeByMe,
-}: CommentType & { likeCount: number; likeByMe: boolean | undefined }) {
+  likedByMe,
+}: CommentType) {
   const [areChildrenHidden, setAreChildrenHidden] = useState<boolean>(false);
   const [isReplyng, setisReplyng] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -45,6 +46,7 @@ export default function Comment({
   const createLocalComment = postContext?.createLocalComment;
   const updateLocalComment = postContext?.updateLocalComment;
   const deleteLocalComment = postContext?.deleteLocalComment;
+  const toggleLocalCommentLike = postContext?.toggleLocalCommentLike;
   const childComments = postContext?.getReplies(id);
 
   const {
@@ -58,6 +60,12 @@ export default function Comment({
     error: deleteCommentError,
     execute: deleteCommentFn,
   } = useAsyncFn(deleteComment);
+
+  const {
+    loading: toggleCommentLikeLoading,
+    error: toggleCommentLikeError,
+    execute: toggleCommentLikeFn,
+  } = useAsyncFn(toggleCommentLike);
 
   function onCommentReply(message: string) {
     return (
@@ -92,6 +100,16 @@ export default function Comment({
     );
   }
 
+  function onToggleCommentLike() {
+    return (
+      toggleCommentLikeFn &&
+      toggleCommentLikeFn({ id, postId: post?.id }).then(
+        ({ addLike }) =>
+          toggleLocalCommentLike && toggleLocalCommentLike(id, addLike)
+      )
+    );
+  }
+
   return (
     <>
       <div className="comment">
@@ -101,6 +119,7 @@ export default function Comment({
         </div>
         {isEditing ? (
           <CommentForm
+            onBlur={() => setIsEditing(false)}
             autoFocus
             initialValue={message}
             onSubmit={onCommentUpdate}
@@ -112,8 +131,10 @@ export default function Comment({
         )}
         <div className="footer">
           <IconBtn
-            Icon={likeByMe ? FaHeart : FaRegHeart}
-            arial-lable={likeByMe ? "Unlike" : "like"}
+            disabled={toggleCommentLikeLoading}
+            onClick={onToggleCommentLike}
+            Icon={likedByMe ? FaHeart : FaRegHeart}
+            arial-lable={likedByMe ? "Unlike" : "like"}
           >
             {likeCount}
           </IconBtn>
@@ -121,7 +142,7 @@ export default function Comment({
             <>
               <IconBtn
                 onClick={() => setIsEditing((prevState) => !prevState)}
-                isActive={isReplyng}
+                isActive={isEditing}
                 Icon={FaEdit}
                 arial-lable={isEditing ? "Cansel Edit" : "Edit"}
               />
@@ -144,10 +165,14 @@ export default function Comment({
         {deleteCommentError && (
           <div className="error-msg mt-1">{deleteCommentError}</div>
         )}
+        {toggleCommentLikeError && (
+          <div className="error-msg mt-1">{toggleCommentLikeError}</div>
+        )}
       </div>
       {isReplyng && (
         <div className="mt-1 ml-3">
           <CommentForm
+            onBlur={() => setisReplyng(false)}
             autoFocus={true}
             onSubmit={onCommentReply}
             loading={createCommentLoading}
@@ -156,14 +181,20 @@ export default function Comment({
         </div>
       )}
       {childComments && childComments.length > 0 && (
-        <div className="nested-comments-stack">
-          <button
-            className="collapse-line"
-            aria-label="Hide Replies"
-            onClick={() => setAreChildrenHidden(false)}
-          />
-          <div className="nested-comments">
-            <CommentList comments={childComments} />
+        <>
+          <div
+            className={`nested-comments-stack ${
+              areChildrenHidden ? "hide" : ""
+            }`}
+          >
+            <button
+              className="collapse-line"
+              aria-label="Hide Replies"
+              onClick={() => setAreChildrenHidden(true)}
+            />
+            <div className="nested-comments">
+              <CommentList comments={childComments} />
+            </div>
           </div>
           <button
             className={`btn mt-1 ${!areChildrenHidden ? "hide" : ""}`}
@@ -171,7 +202,7 @@ export default function Comment({
           >
             Show Replies
           </button>
-        </div>
+        </>
       )}
     </>
   );
